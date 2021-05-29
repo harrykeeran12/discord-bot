@@ -1,8 +1,6 @@
 import discord
 from discord.ext import commands
 
-
-
 class Greeting(commands.Cog):
   def __init__(self, bot):
     self.bot = bot
@@ -13,9 +11,10 @@ class Greeting(commands.Cog):
     print("Ready to get Tutti Frutti?")
     print('Excellent Elderberry is online')
 
-  @commands.command()
+  @commands.command(description = 'Greets the user')
+	# Greets the user try this bruh rippp wth is wrong with line 20? you missed a bracket bruhhhhht ok this should work don't add the str it's gonna display everything  no no ok take ooneut  dir ok this shoudl work don't add str this should work
   async def greeting(self, ctx):
-    await ctx.send('Greetings!!!')
+    await ctx.send('Greetings!!! ' + format(ctx.author.display_name))
 
 
 def setup(bot):

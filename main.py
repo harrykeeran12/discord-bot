@@ -6,6 +6,7 @@ from discord.ext import commands
 
 
 global last_message #do we really need this global variable?
+
 last_message = ""
 token = os.environ['TOKEN']
 
@@ -64,9 +65,7 @@ async def translate(ctx):
   
 '''
 
-@bot.command()
-async def assist(ctx):
-  await ctx.send("Press // along with:\ntext [text] \neightball [question] \nyareyare \nConnect \nJoin \nwiki \n")
+
 
 
 
