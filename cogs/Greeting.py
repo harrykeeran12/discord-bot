@@ -11,10 +11,27 @@ class Greeting(commands.Cog):
     print("Ready to get Tutti Frutti?")
     print('Excellent Elderberry is online')
 
-  @commands.command(description = 'Greets the user')
-	# Greets the user try this bruh rippp wth is wrong with line 20? you missed a bracket bruhhhhht ok this should work don't add the str it's gonna display everything  no no ok take ooneut  dir ok this shoudl work don't add str this should work
-  async def greeting(self, ctx):
-    await ctx.send('Greetings!!! ' + format(ctx.author.display_name))
+  @commands.command(brief = 'Greets the user')
+  async def greeting(self, ctx, msg):
+    if (msg != self.bot.user):
+      await ctx.send(msg)
+    else:
+      await ctx.send('Greetings to ' + format(ctx.author.display_name) + '!!!')
+  
+    #if what we mention is not bot then mention that user
+   #i dont think you can do that in python? its a js thing prob
+   #msg is a string
+
+    
+    '''
+    try: 
+      await ctx.send(member)
+    except Exception:
+      await ctx.send('Greetings to ' + format(ctx.author.display_name) + '!!!')
+    '''
+ 
+
+
 
 
 def setup(bot):

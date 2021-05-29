@@ -23,15 +23,18 @@ ffmpegopts = {
 @bot.command()
 async def load(ctx, extensions):
   bot.load_extension(f'cogs.{extensions}')
+  await ctx.send(extensions + ' loaded.')
 
 @bot.command()
 async def unload(ctx, extensions):
   bot.unload_extension(f'cogs.{extensions}')
+  await ctx.send(extensions + ' unloaded.')
 
 @bot.command()
 async def reload(ctx, extensions):
   bot.unload_extension(f'cogs.{extensions}')
   bot.load_extension(f'cogs.{extensions}')
+  await ctx.send(extensions + ' reloaded.')
 
 #initalise all command file in cogs folder in the start of program
 for file in os.listdir("./cogs"):
