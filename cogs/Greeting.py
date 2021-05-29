@@ -10,28 +10,18 @@ class Greeting(commands.Cog):
     await self.bot.change_presence(status=discord.Status.idle, activity=discord.Game('Fruitopia'))
     print("Ready to get Tutti Frutti?")
     print('Excellent Elderberry is online')
-
-  @commands.command(brief = 'Greets the user')
-  async def greeting(self, ctx, msg):
-    if (msg != self.bot.user):
-      await ctx.send(msg)
-    else:
-      await ctx.send('Greetings to ' + format(ctx.author.display_name) + '!!!')
-  
-    #if what we mention is not bot then mention that user
-   #i dont think you can do that in python? its a js thing prob
-   #msg is a string
-
     
+  @commands.command(brief = 'Greets the user')
+  async def greeting(self, ctx, msg: discord.Member = None):
     '''
-    try: 
-      await ctx.send(member)
-    except Exception:
-      await ctx.send('Greetings to ' + format(ctx.author.display_name) + '!!!')
+    guild = bot.guilds
+    members = guild[0].members
+    print(members)
     '''
- 
-
-
+    if msg != None:
+      await ctx.send(f'Summon {msg.mention}')
+    else:
+      await ctx.send(f'Greetings to {ctx.author.display_name} !!!')
 
 
 def setup(bot):

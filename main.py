@@ -4,15 +4,12 @@ import os
 import random
 from discord.ext import commands
 
-
-global last_message #do we really need this global variable?
-
-last_message = ""
 token = os.environ['TOKEN']
 
 bot = commands.Bot(command_prefix='//')
 discord_client = discord.Client()
 motifs = {}
+
 
 ffmpegopts = {
     'before_options': '-nostdin',
@@ -31,7 +28,7 @@ async def unload(ctx, extensions):
   await ctx.send(extensions + ' unloaded.')
 
 @bot.command()
-async def reload(ctx, extensions):
+async def reload(ctx, extensions): #theres a bot.reload_extension y'all know that right? 
   bot.unload_extension(f'cogs.{extensions}')
   bot.load_extension(f'cogs.{extensions}')
   await ctx.send(extensions + ' reloaded.')
@@ -47,7 +44,7 @@ for file in os.listdir("./cogs"):
 # whats up this is my command - Elcurtiso
 @bot.command()
 async def text(context, Message):
-    await context.send(Message)
+  await context.send(Message)
 
 @bot.command()
 async def eightball(context, *, question):
