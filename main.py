@@ -106,14 +106,14 @@ async def yareyare(context):
     #print(temp)
     voicechk.pause()
     voicechk.play(source)
-    time.sleep(5)
+    time.sleep(3)
     voicechk.pause()
     voicechk.play(temp)
     
   else:
     voice_player = await context.message.author.voice.channel.connect()
     voice_player.play(source)
-    time.sleep(5)
+    time.sleep(3)
     server = context.message.guild.voice_client
     await server.disconnect()
 		
@@ -141,7 +141,7 @@ def is_connected(ctx):
 
 #this intial code is to see when some one joins and play somthing
 # yes i know its spelt announcement. shut up.
-#it works with no validation. validation comming
+#it works with no validation. validation coming
 #Edited by NDIMISH
 
 @bot.event
@@ -152,41 +152,43 @@ async def on_voice_state_update(Member, Before, After):
     return
   
 	#external stuff
-  voicechk = is_connected()
-  source = discord.FFmpegPCMAudio("MP3/Join.mp3")
+  mp3array = ["MP3/Join.mp3", "MP3/Join2.mp3", "MP3/Join3.mp3", "MP3/Join4.mp3","MP3/Join5.mp3","MP3/Join6.mp3"]
+  source = discord.FFmpegPCMAudio(random.choice(mp3array))
+  #source = discord.FFmpegPCMAudio('https://cdn.discordapp.com/attachments/791691369017376819/849001866653204480/Join.mp3') huh ok so links apparently do work - this means you could assign ppl different motifs using another command, and get this to auto run it 
 
 # so status includes mute,defen ext. so the line before indicates if the Before
 #status is nothing and the after is somthing. the person must have joined
   if Before.channel == None and After.channel != None:
- # code below not working
-      # the code below will check if the bot is in a voice channel
-
-    #voicechk = discord.utils.get(context.bot.voice_client, guild =context.guild)
-		# for refrence...
-		# voicechk = discord.utils.get(context.bot.voice_clients, guild=context.guild)
-
-    #the code below will check if the bot channel is same as joining member channel
-    if voicechk:
-      if voicechk.voice.channel == Member.voice.channel:
-          temp = voicechk.source 
-          voicechk.pause()
-          voicechk.play(source)
-          time.sleep(5)
-          voicechk.pause()
-          voicechk.play(temp)
-          return
-          # the code below means if bot not in new comer voice channel. leave the channel and join new comer voice channel
-      else:
-        voicechk.channel.disconnect()
+    member_string = str(Member)
     channel = Member.voice.channel
-    #connect to voice channel and play. 
-    voice_player = await channel.connect()
-    voice_player.play(source)
-    time.sleep(3.7)
-    #leaving channel
-    #server = bot.message.guild.voice_client
-    await voice_player.disconnect()
+    if member_string in motifs.keys():
+      source = discord.FFmpegPCMAudio(motifs.get(member_string))
+      voice_player = await channel.connect()
+      voice_player.play(source)
+      time.sleep(3.7)
+      await voice_player.disconnect()
 
+    else:
+      #connect to voice channel and play. 
+      voice_player = await channel.connect()
+      voice_player.play(source)
+      time.sleep(3.7)
+      #leaving channel
+      #server = bot.message.guild.voice_client
+      await voice_player.disconnect()
+    #gonna need context to validate this ngl 
+
+
+@bot.command()
+async def motif(ctx, link):
+  author = str(ctx.message.author)
+  if author in motifs.keys():
+    motifs[author] = link
+    ctx.send("Motif has been updated.")
+  else: 
+    motifs[author] = link
+    ctx.send("Motif has been added.")
+  pass
 
 bot.run(token)
 
