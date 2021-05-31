@@ -54,8 +54,7 @@ async def eightball(context, *, question):
               'Good joke',
               'It could be',
               'Try Again!',
-              'LMAO, hearing your questions makes me laugh.ewww',
-              ' Secret 9th response == Nathan is not as cool as Curtis.']
+              'LMAO, hearing your questions makes me laugh']
   await context.send(f'The eightball says... \n{random.choice(responses)}')
 
 # forget ya boi Elcurtiso... it is I yare yare man
@@ -64,12 +63,6 @@ async def eightball(context, *, question):
 async def translate(ctx):
   
 '''
-
-
-
-
-
-
 
 # yare yare does work!!!! base
 #currently checking to do while in voice channel
@@ -82,7 +75,7 @@ async def yareyare(context):
   await context.send(embed = embed)
   voicechk = discord.utils.get(context.bot.voice_clients, guild=context.guild) #ok so discord.utils.get() gets the first item that meets the criteria?
   #print(voicechk)
-  source = discord.FFmpegPCMAudio("Yareyaredaze.mp3")
+  source = discord.FFmpegPCMAudio("MP3/Yareyaredaze.mp3")
   # voicechk is the bot id in the channel variable (context is general)
   if (voicechk):
 		# this is some great stuff
@@ -116,7 +109,6 @@ async def yareyare(context):
     time.sleep(5)
     voicechk.pause()
     voicechk.play(temp)
-
     
   else:
     voice_player = await context.message.author.voice.channel.connect()
@@ -143,6 +135,57 @@ async def motif(ctx, audiourl): # what this needs to do - check if the person wr
     ctx.send('Run the command again.') # this makes sure that the motif is stored into the dictionary
 '''
 
+def is_connected(ctx):
+    voice_client = ctx.get(ctx.bot.voice_clients, guild=ctx.guild)
+    return voice_client and voice_client.is_connected()
+
+#this intial code is to see when some one joins and play somthing
+# yes i know its spelt announcement. shut up.
+#it works with no validation. validation comming
+#Edited by NDIMISH
+
+@bot.event
+async def on_voice_state_update(Member, Before, After):
+  
+  #checks if the member is a bot
+  if Member.bot:
+    return
+  
+	#external stuff
+  voicechk = is_connected()
+  source = discord.FFmpegPCMAudio("MP3/Join.mp3")
+
+# so status includes mute,defen ext. so the line before indicates if the Before
+#status is nothing and the after is somthing. the person must have joined
+  if Before.channel == None and After.channel != None:
+ # code below not working
+      # the code below will check if the bot is in a voice channel
+
+    #voicechk = discord.utils.get(context.bot.voice_client, guild =context.guild)
+		# for refrence...
+		# voicechk = discord.utils.get(context.bot.voice_clients, guild=context.guild)
+
+    #the code below will check if the bot channel is same as joining member channel
+    if voicechk:
+      if voicechk.voice.channel == Member.voice.channel:
+          temp = voicechk.source 
+          voicechk.pause()
+          voicechk.play(source)
+          time.sleep(5)
+          voicechk.pause()
+          voicechk.play(temp)
+          return
+          # the code below means if bot not in new comer voice channel. leave the channel and join new comer voice channel
+      else:
+        voicechk.channel.disconnect()
+    channel = Member.voice.channel
+    #connect to voice channel and play. 
+    voice_player = await channel.connect()
+    voice_player.play(source)
+    time.sleep(3.7)
+    #leaving channel
+    #server = bot.message.guild.voice_client
+    await voice_player.disconnect()
 
 
 bot.run(token)

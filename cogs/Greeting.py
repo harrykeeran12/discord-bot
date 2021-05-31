@@ -22,6 +22,13 @@ class Greeting(commands.Cog):
       await ctx.send(f'Summon {msg.mention}')
     else:
       await ctx.send(f'Greetings to {ctx.author.display_name} !!!')
+  
+'''
+  @greeting.error
+  async def greeting_error(self, ctx, error):
+    if isinstance(error, commands.MissingRequiredArgument):
+      await ctx.send('Please add a required argument.')
+''' #this works if you dont put in an argument - currently its commented, but this is an example of error handling
 
 
 def setup(bot):
