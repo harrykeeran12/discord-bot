@@ -75,6 +75,7 @@ async def translate(ctx):
   
 '''
 
+
 # yare yare does work!!!! base
 #currently checking to do while in voice channel
 # line 204 for idle disconnect timing
@@ -137,7 +138,6 @@ async def on_voice_state_update(Member, Before, After):
 
   member_string = str(Member)
   member_string = int(member_string[-4: ])
-  print(member_string)
   conn = sqlite3.connect('motifs.db')
   c = conn.cursor()
   statement = 'SELECT active FROM motifs WHERE id = ?'
@@ -153,7 +153,6 @@ async def on_voice_state_update(Member, Before, After):
     channel = Member.voice.channel
     c.execute("SELECT id FROM motifs")
     query_id = c.fetchall()
-    print(query_id)
     motif_names = []
     for names in query_id:
       motif_names.append(int(names[0]))
@@ -163,7 +162,6 @@ async def on_voice_state_update(Member, Before, After):
       sql = "SELECT link FROM motifs WHERE id = ?"
       c.execute(sql, [member_string])
       link = c.fetchone()
-      print(link)
       if link != "None":
         source = discord.FFmpegPCMAudio(link[0])
     
@@ -199,7 +197,7 @@ async def motif(ctx, link):
   author = full_author[0: len(full_author) - 5]
   active = 1
 
-  #incase of failur make a new table
+  #incase of failure make a new table
   try:
     c.execute("""CREATE TABLE motifs(
       name TEXT,
