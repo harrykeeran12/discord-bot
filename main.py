@@ -32,7 +32,7 @@ async def load(ctx, extensions):
   bot.load_extension(f'cogs.{extensions}')
   await ctx.send(extensions + ' loaded.')
 
-@bot.command(brief = "Unloads cog into the bot")
+@bot.command(brief = "Unloads cog from the bot")
 async def unload(ctx, extensions):
   bot.unload_extension(f'cogs.{extensions}')
   await ctx.send(extensions + ' unloaded.')
@@ -145,11 +145,14 @@ async def on_voice_state_update(Member, Before, After):
       sql = "SELECT link FROM motifs WHERE name = ?"
       c.execute(sql, [member_string])
       link = c.fetchone()
-      source = discord.FFmpegPCMAudio(link[0])
-      voice_player = await channel.connect()
-      voice_player.play(source)
-      time.sleep(3.7)
-      await voice_player.disconnect()
+      if link != None:
+        source = discord.FFmpegPCMAudio(link[0])
+        voice_player = await channel.connect()
+        voice_player.play(source)
+        time.sleep(3.7)
+        await voice_player.disconnect()
+      else:
+        pass
 
     else:
       #connect to voice channel and play. 
