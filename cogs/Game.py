@@ -45,7 +45,7 @@ class Game(commands.Cog):
         for val in roll:
           await ctx.send(file=discord.File(f'./diceface/face{val}.png'))
       
-      for i in range(len(self.players)):
+      for i in range(len(self.players)-1):
         listScore = listScore + self.players[i] + " Has " + str(self.scores[i]) + " Points!" + "\n"
       await ctx.send("----------ScoreBoard----------")
       await ctx.send(listScore)
