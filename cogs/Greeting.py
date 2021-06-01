@@ -11,7 +11,7 @@ class Greeting(commands.Cog):
     print("Ready to get Tutti Frutti?")
     print('Excellent Elderberry is online')
     
-  @commands.command(brief = 'Greets the user')
+  @commands.command(brief = 'Greets the user, addition parameter to summon')
   async def greeting(self, ctx, msg: discord.Member = None):
     '''
     guild = bot.guilds

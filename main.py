@@ -27,17 +27,17 @@ ffmpegopts = {
 }
 
 #Cog handling----------------------------------------------------
-@bot.command()
+@bot.command(brief = "Loads cog into the bot")
 async def load(ctx, extensions):
   bot.load_extension(f'cogs.{extensions}')
   await ctx.send(extensions + ' loaded.')
 
-@bot.command()
+@bot.command(brief = "Unloads cog into the bot")
 async def unload(ctx, extensions):
   bot.unload_extension(f'cogs.{extensions}')
   await ctx.send(extensions + ' unloaded.')
 
-@bot.command()
+@bot.command(brief = "Reloads cog into the bot")
 async def reload(ctx, extensions): #theres a bot.reload_extension y'all know that right? 
   bot.unload_extension(f'cogs.{extensions}')
   bot.load_extension(f'cogs.{extensions}')
@@ -89,38 +89,13 @@ async def yareyare(context):
   source = discord.FFmpegPCMAudio("MP3/Yareyaredaze.mp3")
   # voicechk is the bot id in the channel variable (context is general)
   if (voicechk):
-		# this is some great stuff
-    #the original if statement already checks if its in the channel + we are pausing it anyway
-		# now playing doesnt mean anything tho
-    #the if statement voicechk works fine we tested that its everything below
-		#what does the else stuff do?
-    #thats for when the bot isnt currently in the channel, it adds the bot and plays the clip
-		# could you loop the queue, then add the yare yare thing, then skip to it, then unloop? technically that would work?
-    #the issue is that when a song plays we pause it and yareyare plays but the song doesnt resume
-		#creating a new event loop or something maybe? 
-
-		#try print now_playing? just to see if it actually does anything? 
-    #ok
-
-		#we have learnt that now playing doesnt do anything
-    #then how do we get the info of the current song?
-
-		#it doesnt mean anything though, there might be another way to return it 
-		# we can use source
-		# just invoking source prints the source i think? 
-    #you may be right without a variable
-		#thats just gonna play yareyare, but we wanna do voicechk(source) i think? cos its an attribute? 
-
-    #ok fixed this too
-
     temp = voicechk.source # this just saves the exact point of the source so it can just be restored really easily
     #print(temp)
     voicechk.pause()
     voicechk.play(source)
     time.sleep(3)
     voicechk.pause()
-    voicechk.play(temp)
-    
+    voicechk.play(temp)  
   else:
     voice_player = await context.message.author.voice.channel.connect()
     voice_player.play(source)
