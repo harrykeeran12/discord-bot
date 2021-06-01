@@ -30,10 +30,10 @@ class Game(commands.Cog):
   @commands.command(brief = 'Roll dice')
   async def roll_dice(self, ctx):
     if len(self.players) != 0:
+      self.scores = []
+      listScores = ""
       for player in self.players:
-        listScore = ""
         roll = []
-        self.scores = []
         val1 = random.randint(1, 6)
         val2 = random.randint(1, 6)
         roll.append(val1)
@@ -45,11 +45,19 @@ class Game(commands.Cog):
         for val in roll:
           await ctx.send(file=discord.File(f'./diceface/face{val}.png'))
       
-      for i in range(len(self.players)-1):
-        listScore = listScore + self.players[i] + " Has " + str(self.scores[i]) + " Points!" + "\n"
+      for i in range(len(self.players)):
+        listScores = listScores + self.players[i] + " Has " + str(self.scores[i]) + " Points!" + "\n"
       await ctx.send("----------ScoreBoard----------")
-      await ctx.send(listScore)
-      await ctx.send(self.players[self.scores.index(max(self.scores))] + " has WON the Game Of Dice War!!!")
+      await ctx.send(listScores)
+      highest = max(self.scores)
+      winners = []
+      for i in range(len(self.scores)):
+        if self.scores[i] == highest:
+          winners.append(self.players[i])
+      if len(winners) == 1:
+        await ctx.send(winners[0] + " has WON the Game Of Dice War!!!")
+      else:
+        await ctx.send(", ".join(winners) + " draws in the Game Of Dice War!!!")
     else:
       await ctx.send("No players")
     

@@ -145,7 +145,7 @@ async def on_voice_state_update(Member, Before, After):
       sql = "SELECT link FROM motifs WHERE name = ?"
       c.execute(sql, [member_string])
       link = c.fetchone()
-      if link != None:
+      if link != "None":
         source = discord.FFmpegPCMAudio(link[0])
         voice_player = await channel.connect()
         voice_player.play(source)
