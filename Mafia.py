@@ -1,6 +1,8 @@
 #!/usr/bin/python3
-from credentials import discordToken
+import os
 from mafia import Mafia
+
+discordToken = os.environ['TOKEN']
 
 m = Mafia()
 m.run(discordToken)

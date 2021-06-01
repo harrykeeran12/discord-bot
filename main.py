@@ -2,21 +2,31 @@ import discord
 import time
 import os
 import random
+import sqlite3
 from discord.ext import commands
 
-token = os.environ['TOKEN']
+#token = os.environ['TOKEN']
+
+token = os.environ['TOKEN2']
 
 bot = commands.Bot(command_prefix='//')
 discord_client = discord.Client()
 motifs = {}
 
+#doing some sqlite3 database stuff dw about it
+conn = sqlite3.connect('motifs.db')
+c = conn.cursor()
+
+
+
+#----------------------------------------------
 
 ffmpegopts = {
     'before_options': '-nostdin',
     'options': '-vn'
 }
 
-#testing cogs--------------------------------------------------------
+#Cog handling----------------------------------------------------
 @bot.command()
 async def load(ctx, extensions):
   bot.load_extension(f'cogs.{extensions}')
@@ -37,9 +47,10 @@ async def reload(ctx, extensions): #theres a bot.reload_extension y'all know tha
 for file in os.listdir("./cogs"):
   if file.endswith('.py'):
     bot.load_extension(f'cogs.{file[:-3]}')
-    
+  
+#----------------------------------------------------------------
 
-#--------------------------------------------------------------------
+
 
 # whats up this is my command - Elcurtiso
 @bot.command()
@@ -118,22 +129,7 @@ async def yareyare(context):
     await server.disconnect()
 		
 # end yare yare
-'''
-@bot.command()
-async def motif(ctx, audiourl): # what this needs to do - check if the person writing has a motif, then plays the motif when they enter a call
-  if ctx.message.author in motifs:
-    voicechk = discord.utils.get(ctx.bot.voice_clients, guild=ctx.guild)
-    source = discord.FFmpegPCMAudio(motifs.get(str(ctx.message.author)))
-    if (voicechk != None):
-      temp = voicechk.now_playing
-      voicechk.now_playing.pause()
-      voicechk.play(source)
-      voicechk.now_playing = temp
-      voicechk.resume()
-  else:
-    motifs.update({str(ctx.message.author), str(audiourl)})
-    ctx.send('Run the command again.') # this makes sure that the motif is stored into the dictionary
-'''
+
 
 def is_connected(ctx):
     voice_client = ctx.get(ctx.bot.voice_clients, guild=ctx.guild)
@@ -152,17 +148,29 @@ async def on_voice_state_update(Member, Before, After):
     return
   
 	#external stuff
-  mp3array = ["MP3/Join.mp3", "MP3/Join2.mp3", "MP3/Join3.mp3", "MP3/Join4.mp3","MP3/Join5.mp3","MP3/Join6.mp3"]
+  mp3array = ["MP3/Join.mp3", "MP3/Join2.mp3", "MP3/Join3.mp3", "MP3/Join4.mp3","MP3/Join5.mp3","MP3/Join6.mp3", "MP3/Join7.mp3"]
   source = discord.FFmpegPCMAudio(random.choice(mp3array))
+  conn = sqlite3.connect('motifs.db')
+  c = conn.cursor()
   #source = discord.FFmpegPCMAudio('https://cdn.discordapp.com/attachments/791691369017376819/849001866653204480/Join.mp3') huh ok so links apparently do work - this means you could assign ppl different motifs using another command, and get this to auto run it 
 
 # so status includes mute,defen ext. so the line before indicates if the Before
 #status is nothing and the after is somthing. the person must have joined
   if Before.channel == None and After.channel != None:
     member_string = str(Member)
+    member_string = member_string[0: len(member_string) - 5]
     channel = Member.voice.channel
-    if member_string in motifs.keys():
-      source = discord.FFmpegPCMAudio(motifs.get(member_string))
+    c.execute("SELECT name FROM motifs")
+    query_names = c.fetchall()
+    motif_names = []
+    for names in query_names:
+      motif_names.append(str(names[0]))
+
+    if member_string in motif_names:
+      sql = "SELECT link FROM motifs WHERE name = ?"
+      c.execute(sql, [member_string])
+      link = c.fetchone()
+      source = discord.FFmpegPCMAudio(link[0])
       voice_player = await channel.connect()
       voice_player.play(source)
       time.sleep(3.7)
@@ -181,14 +189,69 @@ async def on_voice_state_update(Member, Before, After):
 
 @bot.command()
 async def motif(ctx, link):
-  author = str(ctx.message.author)
-  if author in motifs.keys():
-    motifs[author] = link
-    ctx.send("Motif has been updated.")
-  else: 
-    motifs[author] = link
-    ctx.send("Motif has been added.")
-  pass
+  try:
+    c.execute("""CREATE TABLE motifs(
+      name TEXT,
+      id INTEGER,
+      link TEXT
+    )""")
+    await ctx.send("New table has been created.")
+  except sqlite3.OperationalError:
+    full_author = str(ctx.message.author)
+    id = full_author[-4: ]
+    author = full_author[0: len(full_author) - 5]
 
+    await ctx.send(f'Username = {author}, id is {id}')
+    insert = """INSERT INTO motifs(name, id, link)
+    VALUES(?, ?, ?)"""
+    data = (author, id, link)
+    c.execute(insert, data)
+
+    #s_link = str(link)
+
+
+
+    c.execute("SELECT name FROM motifs")
+    query_names = c.fetchall()
+    motif_names = []
+    for names in query_names:
+      motif_names.append(str(names[0]))
+
+
+    #print(motif_names)
+
+    if author in motif_names:
+      update = "UPDATE motifs SET name = ?, link = ? WHERE name = ?"
+      data = (author, link, author)
+      c.execute(update, data)
+      await ctx.send("Motif has been updated.")
+    else: 
+      c.execute(insert, data)
+      await ctx.send("Motif has been added.")
+
+    conn.commit()
+    conn.close()
+
+
+
+@bot.command()
+async def remove_motif(ctx):
+  conn = sqlite3.connect('motifs.db')
+  c = conn.cursor()
+  full_author = str(ctx.message.author)
+  author = full_author[0: len(full_author) - 5]
+  sql = "DELETE FROM motifs WHERE name = ?"
+  c.execute(sql, [author])
+  conn.commit()
+  await ctx.send(f"User {author} has been deleted from the database.")
+
+
+@bot.command()
+async def show_motifs(ctx):
+  conn = sqlite3.connect('motifs.db')
+  c = conn.cursor()
+  sql = "SELECT * FROM motifs"
+  c.execute(sql)
+  await ctx.send(c.fetchall())
 bot.run(token)
 
