@@ -110,10 +110,17 @@ def is_connected(ctx):
     voice_client = ctx.get(ctx.bot.voice_clients, guild=ctx.guild)
     return voice_client and voice_client.is_connected()
 
-#this intial code is to see when some one joins and play somthing
-# yes i know its spelt announcement. shut up.
+
+
+
+
+
+
+
+
+# code below is all for motif bot
 #it works with no validation. validation coming
-#Edited by NDIMISH
+#Edited by NDIMISH and harry9
 
 @bot.event
 async def on_voice_state_update(Member, Before, After):
@@ -125,85 +132,103 @@ async def on_voice_state_update(Member, Before, After):
 	#external stuff
   mp3array = ["MP3/Join.mp3", "MP3/Join2.mp3", "MP3/Join3.mp3", "MP3/Join4.mp3","MP3/Join5.mp3","MP3/Join6.mp3", "MP3/Join7.mp3"]
   source = discord.FFmpegPCMAudio(random.choice(mp3array))
+
+  #get member id. used to search through database
+
+  member_string = str(Member)
+  member_string = int(member_string[-4: ])
+  print(member_string)
   conn = sqlite3.connect('motifs.db')
   c = conn.cursor()
-  #source = discord.FFmpegPCMAudio('https://cdn.discordapp.com/attachments/791691369017376819/849001866653204480/Join.mp3') huh ok so links apparently do work - this means you could assign ppl different motifs using another command, and get this to auto run it 
+  statement = 'SELECT active FROM motifs WHERE id = ?'
+  c.execute(statement, [member_string])
+  state_of_active_motif = c.fetchone()
+  if state_of_active_motif == 0:
+    return
+ 
 
 # so status includes mute,defen ext. so the line before indicates if the Before
 #status is nothing and the after is somthing. the person must have joined
   if Before.channel == None and After.channel != None:
-    member_string = str(Member)
-    member_string = member_string[0: len(member_string) - 5]
     channel = Member.voice.channel
-    c.execute("SELECT name FROM motifs")
-    query_names = c.fetchall()
+    c.execute("SELECT id FROM motifs")
+    query_id = c.fetchall()
+    print(query_id)
     motif_names = []
-    for names in query_names:
-      motif_names.append(str(names[0]))
+    for names in query_id:
+      motif_names.append(int(names[0]))
 
+# member string is the id of the messege user
     if member_string in motif_names:
-      sql = "SELECT link FROM motifs WHERE name = ?"
+      sql = "SELECT link FROM motifs WHERE id = ?"
       c.execute(sql, [member_string])
       link = c.fetchone()
+      print(link)
       if link != "None":
         source = discord.FFmpegPCMAudio(link[0])
-        voice_player = await channel.connect()
-        voice_player.play(source)
-        time.sleep(3.7)
-        await voice_player.disconnect()
-      else:
-        pass
+    
+    #connect to voice channel and play. 
+    voice_player = await channel.connect()
+    voice_player.play(source)
+    time.sleep(4)
+    #leaving channel
+    #server = bot.message.guild.voice_client
+    await voice_player.disconnect()
+  #gonna need context to validate this ngl 
 
-    else:
-      #connect to voice channel and play. 
-      voice_player = await channel.connect()
-      voice_player.play(source)
-      time.sleep(3.7)
-      #leaving channel
-      #server = bot.message.guild.voice_client
-      await voice_player.disconnect()
-    #gonna need context to validate this ngl 
+
+
+
+
+
+
 
 
 @bot.command(brief = "Allows you to add your own motifs. These will play once you join any call. ")
 async def motif(ctx, link):
+  conn = sqlite3.connect('motifs.db')
+  c = conn.cursor()
+  
+  if 'mp3' not in link:
+    await ctx.send(f'Sorry {ctx.author} you need to send me a .mp3 file')
+    return
+
+  # to get member id 
+  full_author = str(ctx.message.author)
+  id_name = int(full_author[-4:])
+  author = full_author[0: len(full_author) - 5]
+  active = 1
+
+  #incase of failur make a new table
   try:
     c.execute("""CREATE TABLE motifs(
       name TEXT,
       id INTEGER,
-      link TEXT
+      link TEXT,
+      active INTEGER
     )""")
     await ctx.send("New table has been created.")
   except sqlite3.OperationalError:
-    full_author = str(ctx.message.author)
-    id = full_author[-4: ]
-    author = full_author[0: len(full_author) - 5]
 
-    await ctx.send(f'Username = {author}, id is {id}')
-    insert = """INSERT INTO motifs(name, id, link)
-    VALUES(?, ?, ?)"""
-    data = (author, id, link)
-    c.execute(insert, data)
+# to chck if member in database
+    c.execute("SELECT id FROM motifs")
+    query_ids = c.fetchall()
+    motif_ids = []
+    for id in query_ids:
+      motif_ids.append(int(id[0]))
+      
+    
 
-    #s_link = str(link)
-
-
-
-    c.execute("SELECT name FROM motifs")
-    query_names = c.fetchall()
-    motif_names = []
-    for names in query_names:
-      motif_names.append(str(names[0]))
-
-
-    #print(motif_names)
-
-    if author in motif_names:
-      update = "UPDATE motifs SET name = ?, link = ? WHERE name = ?"
-      data = (author, link, author)
+# if in database update link else add
+    if id_name in motif_ids:
+      update = "UPDATE motifs SET link = ? WHERE id = ?"
+      data = (link, id_name)
       c.execute(update, data)
       await ctx.send("Motif has been updated.")
     else: 
+      insert = """INSERT INTO motifs(name, id, link, active)
+      VALUES(?, ?, ?, ?)"""
+      data = (author, id_name, link, active)
       c.execute(insert, data)
       await ctx.send("Motif has been added.")
 
@@ -212,8 +237,16 @@ async def motif(ctx, link):
 
 
 
+
+
+
+
+
+
+
 @bot.command(brief = "Removes a user's motif.")
 async def remove_motif(ctx):
+  #connects to db, then finds the author
   conn = sqlite3.connect('motifs.db')
   c = conn.cursor()
   full_author = str(ctx.message.author)
@@ -224,6 +257,12 @@ async def remove_motif(ctx):
   await ctx.send(f"User {author} has been deleted from the database.")
 
 
+
+
+
+
+
+
 @bot.command(brief = "Shows all user's motifs.")
 async def show_motifs(ctx):
   conn = sqlite3.connect('motifs.db')
@@ -231,5 +270,65 @@ async def show_motifs(ctx):
   sql = "SELECT * FROM motifs"
   c.execute(sql)
   await ctx.send(c.fetchall())
-bot.run(token)
 
+
+
+
+
+
+
+
+
+@bot.command(brief = "Sets your motif on active")
+async def on_motifs(ctx):
+  #get the id of user
+  id_here = str(ctx.message.author)
+  id_here = int(id_here[-4:])
+  #make database connection
+  conn = sqlite3.connect('motifs.db')
+  c = conn.cursor()
+  # check if user has a datbase name
+  c.execute('SELECT id FROM motifs')
+  id_many = c.fetchall()
+  if id_here not in id_many:
+    await ctx.send(f'motif not in database for {ctx.message.author}')
+    return
+
+    # change active state
+  sql = "UPDATE motifs SET active = 1 WHERE id = ?"
+  c.execute(sql, [id_here])
+  await ctx.send(f'motif deactivated for {ctx.message.author}')
+  conn.commit()
+
+
+
+
+
+
+
+
+
+@bot.command(brief = "Sets your motif on deactive")
+async def off_motifs(ctx):
+  #get the id of user
+  id_here = str(ctx.message.author)
+  id_here = int(id_here[-4:])
+  #make database connection
+  conn = sqlite3.connect('motifs.db')
+  c = conn.cursor()
+  # check if user has a datbase name
+  c.execute('SELECT id FROM motifs')
+  id_many = c.fetchall()
+  if id_here not in id_many:
+    await ctx.send(f'motif not in database for {ctx.message.author}')
+    return
+    # change active state to off
+  sql = "UPDATE motifs SET active = 0 WHERE id = ?"
+  c.execute(sql, [id_here])
+  await ctx.send(f'motif deactivated for {ctx.message.author}')
+  conn.commit()
+
+
+
+#all code must be above this
+bot.run(token)

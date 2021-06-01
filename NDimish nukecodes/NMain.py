@@ -21,3 +21,16 @@ import main.py
           # the code below means if bot not in new comer voice channel. leave the channel and join new comer voice channel
       else:
         voicechk.channel.disconnect() 
+
+
+
+
+
+            #First we check if the person is in the database
+    c.execute('SELECT id FROM motifs')
+    members_id = c.fetchall()
+    if id not in members_id:
+
+      author = full_author[0: len(full_author) - 5]
+      active = 1
+      await ctx.send(f'Username = {author}, id is {id}')
