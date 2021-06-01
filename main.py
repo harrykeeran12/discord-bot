@@ -187,7 +187,7 @@ async def on_voice_state_update(Member, Before, After):
     #gonna need context to validate this ngl 
 
 
-@bot.command()
+@bot.command(brief = "Allows you to add your own motifs. These will play once you join any call. ")
 async def motif(ctx, link):
   try:
     c.execute("""CREATE TABLE motifs(
@@ -234,7 +234,7 @@ async def motif(ctx, link):
 
 
 
-@bot.command()
+@bot.command(brief = "Removes a user's motif.")
 async def remove_motif(ctx):
   conn = sqlite3.connect('motifs.db')
   c = conn.cursor()
@@ -246,7 +246,7 @@ async def remove_motif(ctx):
   await ctx.send(f"User {author} has been deleted from the database.")
 
 
-@bot.command()
+@bot.command(brief = "Shows all user's motifs.")
 async def show_motifs(ctx):
   conn = sqlite3.connect('motifs.db')
   c = conn.cursor()
