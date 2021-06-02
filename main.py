@@ -1,7 +1,7 @@
 import discord
+import random
 import time
 import os
-import random
 import sqlite3
 from discord.ext import commands
 
@@ -48,64 +48,14 @@ for file in os.listdir("./cogs"):
   if file.endswith('.py'):
     bot.load_extension(f'cogs.{file[:-3]}')
   
+
+
+
+
+
+
+
 #----------------------------------------------------------------
-
-
-
-# whats up this is my command - Elcurtiso
-@bot.command()
-async def text(context, Message):
-  await context.send(Message)
-
-@bot.command()
-async def eightball(context, *, question):
-  responses = ['Nope',
-              'Maybe',
-              'Probably',
-              'Good joke',
-              'It could be',
-              'Try Again!',
-              'LMAO, hearing your questions makes me laugh']
-  await context.send(f'The eightball says... \n{random.choice(responses)}')
-
-# forget ya boi Elcurtiso... it is I yare yare man
-'''
-@bot.command()
-async def translate(ctx):
-  
-'''
-
-
-# yare yare does work!!!! base
-#currently checking to do while in voice channel
-# line 204 for idle disconnect timing
-@bot.command()
-async def yareyare(context):
-  embed = discord.Embed(title = "Good Grief")
-  images = ['https://media.discordapp.net/attachments/791691369017376819/847553650117181500/yare-yare-daze-meme.png?width=881&height=432', 'https://media1.tenor.com/images/da558adfcaaf7eedb607a6c282d123ae/tenor.gif?itemid=12243323', ]
-  embed.set_image(url=random.choice(images))
-  await context.send(embed = embed)
-  voicechk = discord.utils.get(context.bot.voice_clients, guild=context.guild) #ok so discord.utils.get() gets the first item that meets the criteria?
-  #print(voicechk)
-  source = discord.FFmpegPCMAudio("MP3/Yareyaredaze.mp3")
-  # voicechk is the bot id in the channel variable (context is general)
-  if (voicechk):
-    temp = voicechk.source # this just saves the exact point of the source so it can just be restored really easily
-    #print(temp)
-    voicechk.pause()
-    voicechk.play(source)
-    time.sleep(3)
-    voicechk.pause()
-    voicechk.play(temp)  
-  else:
-    voice_player = await context.message.author.voice.channel.connect()
-    voice_player.play(source)
-    time.sleep(3)
-    server = context.message.guild.voice_client
-    await server.disconnect()
-		
-# end yare yare
-
 
 def is_connected(ctx):
     voice_client = ctx.get(ctx.bot.voice_clients, guild=ctx.guild)
@@ -114,12 +64,7 @@ def is_connected(ctx):
 
 
 
-
-
-
-
-
-# code below is all for motif bot
+# code below is all for motif bot --------------------------------------------
 #it works with no validation. validation coming
 #Edited by NDIMISH and harry9
 
@@ -146,7 +91,6 @@ async def on_voice_state_update(Member, Before, After):
   if state_of_active_motif == 0:
     return
  
-
 # so status includes mute,defen ext. so the line before indicates if the Before
 #status is nothing and the after is somthing. the person must have joined
   if Before.channel == None and After.channel != None:
@@ -168,7 +112,7 @@ async def on_voice_state_update(Member, Before, After):
     #connect to voice channel and play. 
     voice_player = await channel.connect()
     voice_player.play(source)
-    time.sleep(4)
+    time.sleep(5)
     #leaving channel
     #server = bot.message.guild.voice_client
     await voice_player.disconnect()
@@ -179,15 +123,17 @@ async def on_voice_state_update(Member, Before, After):
 
 
 
+# seting cutom motif
 
 
+@bot.command(brief = "Allows you to add your own motifs. These will play once you join any call. remeber to add .mp3 link after ")
+async def motif(ctx, link = ""):
 
-@bot.command(brief = "Allows you to add your own motifs. These will play once you join any call. ")
-async def motif(ctx, link):
+
   conn = sqlite3.connect('motifs.db')
   c = conn.cursor()
   
-  if 'mp3' not in link:
+  if '.mp3' not in link:
     await ctx.send(f'Sorry {ctx.author} you need to send me a .mp3 file')
     return
 
@@ -238,9 +184,7 @@ async def motif(ctx, link):
 
 
 
-
-
-
+# remove custom motif
 
 @bot.command(brief = "Removes a user's motif.")
 async def remove_motif(ctx):
@@ -258,8 +202,7 @@ async def remove_motif(ctx):
 
 
 
-
-
+# show all current custom motifs
 
 @bot.command(brief = "Shows all user's motifs.")
 async def show_motifs(ctx):
@@ -273,9 +216,7 @@ async def show_motifs(ctx):
 
 
 
-
-
-
+# to activate you motif (on by default)
 
 @bot.command(brief = "Sets your motif on active")
 async def on_motifs(ctx):
@@ -302,9 +243,7 @@ async def on_motifs(ctx):
 
 
 
-
-
-
+# to deactivate your motif
 
 @bot.command(brief = "Sets your motif on deactive")
 async def off_motifs(ctx):
@@ -325,8 +264,6 @@ async def off_motifs(ctx):
   c.execute(sql, [id_here])
   await ctx.send(f'motif deactivated for {ctx.message.author}')
   conn.commit()
-
-
 
 #all code must be above this
 bot.run(token)
