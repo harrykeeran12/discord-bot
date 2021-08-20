@@ -1,5 +1,8 @@
 import time
 
+
+# this is a test to see if the . thing works
+
 @bot.command()
 async def yareyare(context, Member, Before, After):
 
